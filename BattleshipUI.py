@@ -1,8 +1,11 @@
 import pygame
+import BattleshipRep.BattleClasses
 
 pygame.init()
 x_start_board = 20
 x_end_board = 420
+x_start_opponent_board = 480
+x_end_opponent_board = 880
 y_start_board = 120
 y_end_board = 520
 screen = pygame.display.set_mode((900, 600))
@@ -62,6 +65,7 @@ class BoardUI:
 
     @staticmethod
     def DrawShip(screen, ship, size_x=29, size_y=68):  # size_x=29, size_y=68
+        print(ship.x_start + 6, ship.y_start + 6, size_x, size_y)
         pygame.draw.ellipse(screen, BLUE, pygame.Rect(ship.x_start + 6, ship.y_start + 6, size_x, size_y))
 
     @staticmethod
@@ -72,7 +76,50 @@ class BoardUI:
 BoardUI.print_board()
 BoardUI.print_opponent_board()
 
+if BattleshipRep.BattleClasses.ship1.x_end - BattleshipRep.BattleClasses.ship1.x_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship1,
+                     29,
+                     (BattleshipRep.BattleClasses.ship1.y_end - BattleshipRep.BattleClasses.ship1.y_start - 10 + 39))
+elif BattleshipRep.BattleClasses.ship1.y_end - BattleshipRep.BattleClasses.ship1.y_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship1,
+                     (BattleshipRep.BattleClasses.ship1.x_end - BattleshipRep.BattleClasses.ship1.x_start - 10 + 39),
+                     29)
+    
+if BattleshipRep.BattleClasses.ship2.x_end - BattleshipRep.BattleClasses.ship2.x_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship2,
+                     29,
+                     (BattleshipRep.BattleClasses.ship2.y_end - BattleshipRep.BattleClasses.ship2.y_start - 10 + 39))
+elif BattleshipRep.BattleClasses.ship2.y_end - BattleshipRep.BattleClasses.ship2.y_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship2,
+                     (BattleshipRep.BattleClasses.ship2.x_end - BattleshipRep.BattleClasses.ship2.x_start - 10 + 39),
+                     29)
 
+if BattleshipRep.BattleClasses.ship3.x_end - BattleshipRep.BattleClasses.ship3.x_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship3,
+                     29,
+                     (BattleshipRep.BattleClasses.ship3.y_end - BattleshipRep.BattleClasses.ship3.y_start - 10 + 39))
+elif BattleshipRep.BattleClasses.ship3.y_end - BattleshipRep.BattleClasses.ship3.y_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship3,
+                     (BattleshipRep.BattleClasses.ship3.x_end - BattleshipRep.BattleClasses.ship3.x_start - 10 + 39),
+                     29)
+    
+if BattleshipRep.BattleClasses.ship4.x_end - BattleshipRep.BattleClasses.ship4.x_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship4,
+                     29,
+                     (BattleshipRep.BattleClasses.ship4.y_end - BattleshipRep.BattleClasses.ship4.y_start - 10 + 39))
+elif BattleshipRep.BattleClasses.ship4.y_end - BattleshipRep.BattleClasses.ship4.y_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship4,
+                     (BattleshipRep.BattleClasses.ship4.x_end - BattleshipRep.BattleClasses.ship4.x_start - 10 + 39),
+                     29)
+    
+if BattleshipRep.BattleClasses.ship5.x_end - BattleshipRep.BattleClasses.ship5.x_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship5,
+                     29,
+                     (BattleshipRep.BattleClasses.ship5.y_end - BattleshipRep.BattleClasses.ship5.y_start - 10 + 39))
+elif BattleshipRep.BattleClasses.ship5.y_end - BattleshipRep.BattleClasses.ship5.y_start == 0:
+    BoardUI.DrawShip(screen, BattleshipRep.BattleClasses.ship5,
+                     (BattleshipRep.BattleClasses.ship5.x_end - BattleshipRep.BattleClasses.ship5.x_start - 10 + 39),
+                     29)
 
 while not done:
     pressed_cube = []
@@ -86,6 +133,8 @@ while not done:
                     for y in range(0, len(board_y)):
                         if board_y[y] + 1 <= pos[1] <= board_y[y] + BoardUI.cube_and_space-1:
                             print("cube at: ", board_x[x], board_y[y])
+                            cube_place = [board_x[x], board_y[y]]
+                            print(cube_place)
                             pressed_cube = (board_x[x], board_y[y])
                             break
                     break
