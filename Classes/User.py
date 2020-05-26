@@ -2,8 +2,9 @@ import pyodbc
 
 
 class User:
-    """Can create a new user in the database, delete one or change one's username"""
+
     def __init__(self, _id, first_name, last_name, username, email, reg_date, num_of_games, num_of_wins):
+        """Can create a new user in the database, delete one or change one's username"""
         self.id = _id
         self.first_name = first_name
         self.last_name = last_name
@@ -70,5 +71,25 @@ class User:
                               'PWD=P@ssw0rd;')
         cursor = conn.cursor()
         cursor.execute("UPDATE [Users] SET [Username]=? WHERE [ID]=?", new_username, _id)  # changes username in the db
+        cursor.commit()  # executes SQL command
+        return "Success"
+    
+    @staticmethod
+    def add_score(_id, won=False):
+        conn = pyodbc.connect('Driver={SQL Server};'
+                              'Server=vps1.enderpex.com;'
+                              'Database=BattleshipProject;'
+                              'UID=BattleshipProjectUser;'
+                              'PWD=P@ssw0rd;')
+        cursor = conn.cursor()
+        if won:
+            cursor.execute("""UPDATE [Users] SET
+                    [NumberOfWinnings]=(select [NumberOfWinnings]+1 from [Users] WHERE [ID]=?) AND
+                    [NumberOfGames]=(select [NumberOfGames]+1 from [Users] WHERE [ID]=?)
+                    "WHERE [ID]=?""", _id, _id, _id)
+        else:
+            cursor.execute("""UPDATE [Users] SET
+                            [NumberOfGames]=(select [NumberOfGames]+1 from [Users] WHERE [ID]=?)
+                            WHERE [ID]=?""", _id, _id)
         cursor.commit()  # executes SQL command
         return "Success"

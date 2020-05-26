@@ -3,10 +3,11 @@ from Classes.GameManager import GameManager
 
 
 class GameAgainstPlayer(GameManager):
-    """places a ship with cube coordinates defined by the player, and checks if the ship is placed in a valid place,
-    correct size and inside the board"""
+
     @staticmethod
     def place_ship(player, ship, ship_start, ship_end):
+        """places a ship with cube coordinates defined by the player, and checks if the ship is placed in a valid place,
+            correct size and inside the board"""
         not_available_cubes = []
         for key in player.board.cubes_availability:
             if player.board.cubes_availability[key] == 0:
@@ -30,8 +31,6 @@ class GameAgainstPlayer(GameManager):
                 if (x, y) in not_available_cubes:
                     return "Can't place ship on top or next to another ship."
         else:
-            GameManager.place_ship(player, ship, Cube(min(ship_start.x, ship_end.x), min(ship_start.y, ship_end.y)),
-                                   Cube(max(ship_start.x, ship_end.x), max(ship_start.y, ship_end.y)))
             ship.set_position(Cube(min(ship_start.x, ship_end.x), min(ship_start.y, ship_end.y)),
                               Cube(max(ship_start.x, ship_end.x), max(ship_start.y, ship_end.y)))
             for x in range(min(ship_start.x, ship_end.x) - Cube.length,
@@ -40,3 +39,4 @@ class GameAgainstPlayer(GameManager):
                                max(ship_start.y, ship_end.y) + Cube.length + 1, Cube.length):
                     if (x, y) in player.board.cubes_availability:
                         player.board.cubes_availability[(x, y)] = 0
+            return "success"
