@@ -7,13 +7,14 @@ from UI.GameUI import GameUI
 
 class BoardUI:
 
-    color_index = {"blue": (0, 0, 255), "red": (255, 0, 0), "grey": (210, 210, 210)}
+    color_index = {"blue": (0, 0, 255), "red": (255, 0, 0), "grey": (210, 210, 210), "orange": (252, 168, 78),
+                   "light blue": (173, 216, 230), "white": (255, 255, 255)}
 
     @staticmethod
     def draw_board(screen, board):
         for x in range(board.start.x, board.end.x + Cube.length, Cube.length):
             for y in range(board.start.y,  board.end.y + Cube.length, Cube.length):
-                pygame.draw.rect(screen, BoardUI.color_index["grey"],
+                pygame.draw.rect(screen, BoardUI.color_index["white"],
                                  pygame.Rect(x, y, Cube.length - 1, Cube.length - 1))
 
     @staticmethod
@@ -62,7 +63,7 @@ class BoardUI:
                 if ship_check != "success":
                     GameUI.clear_title(screen, 29.5)
                     GameUI.write_title(screen, ship_check, 29.5)
-                    BoardUI.color_cube(screen, ship.cube_start, BoardUI.color_index["grey"])
+                    BoardUI.color_cube(screen, ship.cube_start, BoardUI.color_index["white"])
                     ship.cube_start = None
                     ship.cube_end = None
                     break
@@ -71,14 +72,14 @@ class BoardUI:
                     BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     return ship
             else:
-                BoardUI.color_cube(screen, ship.cube_start, BoardUI.color_index["grey"])
+                BoardUI.color_cube(screen, ship.cube_start, BoardUI.color_index["white"])
                 ship.cube_start = None
                 ship.cube_end = None
                 break
 
     @staticmethod         
     def del_ship(screen, ship):
-        BoardUI.color_ship(screen, ship, BoardUI.color_index["grey"])
+        BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
         ship.del_ship()
         
     @staticmethod

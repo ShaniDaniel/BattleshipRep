@@ -1,135 +1,155 @@
-import pygame
+import tkinter as tk
+from ttkthemes import ThemedTk
+from tkinter import ttk
 
-from Classes.GameAgainstComp import GameAgainstComp
-from Classes.GameAgainstPlayer import GameAgainstPlayer
-from Classes.Player import Player
-from Classes.Board import Board
-from Classes.Cube import Cube
-from UI.BoardUI import BoardUI
 from UI.GameUI import GameUI
-
-pygame.init()
-done = False
-
-clock = pygame.time.Clock()
-pygame.display.set_caption("© Battleship by Shani Daniel ©")  # set window title
-
-Cube.length = 40
-player = Player("Shani")
-player.board = Board(Cube(20, 100), Cube(380, 460))
-player.cubes_not_shot_list()
-
-opponent = Player("Computer")
-opponent.board = Board(Cube(460, 100), Cube(820, 460))
-opponent.cubes_not_shot_list()
+from Classes.User import User
 
 
-screen = pygame.display.set_mode((opponent.board.end.x + player.board.start.x + Cube.length, opponent.board.end.y + 80))
-screen.fill((252, 168, 78))
+def register_user():
+    try:
+        error.destroy()
+    except NameError:
+        pass
 
-GameUI.write_title(screen, "Hello! Welcome to Battleship! You are going to play against the computer.", 0)
-GameUI.write_title(screen, "First of all, place your ships. You can't place a ship on top or next to another ship,", 1)
-GameUI.write_title(screen, "and you must place your ships horizontally or vertically. Your board is the left board.", 2)
-GameUI.write_title(screen, "To place a ship, press the cube you want it to start and then the cube you want it to end."
-                   , 3)
-GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                           " Now, place the ship that is 5 cubes long", 4)
+    def error_label(text):
+        global error
+        error = ttk.Label(reg_screen, text=text, font=("Calibri Bold", 12), foreground='black', background='light blue')
+        error.pack()
 
-BoardUI.draw_board(screen, player.board)
-BoardUI.draw_board(screen, opponent.board)
-GameAgainstComp.rand_place_ships(opponent)
+    if len(first_name.get()) == 0 or len(last_name.get()) == 0 or len(username.get()) == 0 or len(email.get()) == 0 or \
+            len(password.get()) == 0 or len(confirm.get()) == 0:
+        error_label("missing required info")
+    elif first_name.get().isalpha() is False:
+        error_label("Invalid first name")
+    elif last_name.get().isalpha() is False:
+        error_label("Invalid last name")
+    elif len(username.get()) > 10:
+        error_label("username can't exceed 10 characters")
+    elif username.get().isalnum() is False:
+        error_label("username must contain only letters and numbers")
+    elif len(email.get().split('@')) != 2:
+        error_label("Invalid email")
+    elif len(password.get()) < 6:
+        error_label("password must be at least 6 characters long")
+    elif password.get().isalnum() is True and (password.get().isalpha() is True or password.get().isnumeric() is True):
+        error_label("password must contain letters and numbers")
+    elif password.get() != confirm.get():
+        error_label("password's don't match")
 
-for ship in opponent.ships:
-    BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
+    else:
+        user_reg = User.create_user(first_name.get(), last_name.get(), username.get(), email.get(), password.get())
+        if user_reg != "Registration Completed Successfully":
+            error_label(user_reg)
+        return user_reg
 
-start_cube, end_cube = None, None
-player.board.available_cubes_dict(player)
-player_turn = True
-start_game = False
-game_over = False
 
-while not done:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            done = True
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # check for mouse button click
-            """event.button returns 1-left click 2-middle click 3-right click"""
-            pos = pygame.mouse.get_pos()
-            BoardUI.place_ships(screen, player, pos)
-            last_ship = None
-            for ship in player.ships:
-                if ship.cube_end is not None and start_game is False and game_over is False:
-                    BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
-                try:
-                    if last_ship.cube_start is not None and last_ship.cube_end is not None:
-                        GameUI.clear_title(screen, 4)
-                        GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, place the ship that is %s cubes long" % ship.size, 4)
+def register():
+    global reg_screen, first_name, last_name, username, email, password, confirm
+    reg_screen = tk.Toplevel(screen)
+    reg_screen.configure(background='light blue')
+    reg_screen.title("© Battleship by Shani Daniel ©")
+    reg_screen.geometry("400x350")
 
-                except AttributeError:
-                    GameUI.clear_title(screen, 4)
-                    GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                               " Now, place the ship that is 5 cubes long", 4)
-                last_ship = ship
+    first_name = tk.StringVar()
+    last_name = tk.StringVar()
+    username = tk.StringVar()
+    email = tk.StringVar()
+    password = tk.StringVar()
+    confirm = tk.StringVar()
 
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
-            pos = pygame.mouse.get_pos()
-            for ship in player.ships:
-                if BoardUI.get_cubes_position(player, pos) in player.ship_pos.keys() and start_game is False:
-                    if player.ship_pos[BoardUI.get_cubes_position(player, pos)] == ship.id:
-                        GameUI.clear_title(screen, 4)
-                        GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, replace the ship that is %s cubes long" % ship.size, 4)
-                        BoardUI.del_ship(screen, ship)
-                        break
+    def field(var, text):
+        ttk.Label(reg_screen, text=text, font=("Calibri Bold", 12), foreground='black',
+                  background='light blue').pack()
+        tk.Entry(reg_screen, textvariable=var).pack()
 
-        ship_count = 0
-        for ship in player.ships:
-            if ship.cube_start is not None and ship.cube_end is not None:
-                ship_count += 1
-        if ship_count == 5:
-            start_game = True
-            for line in range(5):
-                GameUI.clear_title(screen, line)
+    field(first_name, "First Name: ")
+    field(last_name, "Last Name: ")
+    field(username, "Username: ")
+    field(email, "Email: ")
+    field(password, "Password: ")
+    field(confirm, "Confirm Password: ")
 
-        if player.check_if_lost() is True:
-            GameUI.clear_title(screen, 0.5, 88)
-            GameUI.write_title(screen, "You Lost!", 1, 48)
-            start_game = False
-            game_over = True
-            break
-        if opponent.check_if_lost() is True:
-            GameUI.clear_title(screen, 0.5, 88)
-            GameUI.write_title(screen, "You Won!", 1, 48)
-            start_game = False
-            game_over = True
-            break
+    ttk.Style().configure('reg2.TButton', font=('Calibri Bold', 12), foreground='black')
+    ttk.Button(reg_screen, text="Register", style='reg2.TButton', command=register_user).pack(pady=15)
 
-        if start_game is True and game_over is False:
-            if player_turn is True:
-                GameUI.write_title(screen, "Play!", 0.5, 40)
-                GameUI.clear_title(screen, 2, 36)
-                GameUI.write_title(screen, "your Turn", 2, 36)
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    pos = pygame.mouse.get_pos()
-                    if BoardUI.get_cubes_position(opponent, pos) is not None:
-                        if BoardUI.shoot(screen, opponent, pos) == "success":
-                            player_turn = False
-                            GameUI.clear_title(screen, 1, 66)
-                            GameUI.write_title(screen, "%s's Turn" % opponent.username, 2, 36)
-                break
-            if opponent.check_if_lost() is False:
-                pygame.time.delay(1000)
-            if player_turn is False and opponent.check_if_lost() is False:
-                rand_pos_cube = GameAgainstComp.rand_shoot(player)
-                BoardUI.shoot(screen, player, (rand_pos_cube.x, rand_pos_cube.y))
-                player_turn = True
-        for coord in player.board.empty_shot:
-            BoardUI.draw_x(screen, BoardUI.get_cubes_position(player, (coord.x, coord.y)))
-        for coord in player.board.ship_shot:
-            BoardUI.color_cube(screen, BoardUI.get_cubes_position(player, (coord.x, coord.y)),
-                               BoardUI.color_index["red"])
 
-    pygame.display.flip()
-    clock.tick(60)
-pygame.quit()
+def menu_screen():
+    window = ThemedTk(theme="arc")
+    window.title("© Battleship by Shani Daniel ©")
+    window.configure(background='light blue')
+    ttk.Label(window, text="Welcome to Battleship", font=("Broadway", 50), foreground='black',
+              background='light blue').pack(pady=50)
+    window.geometry('880x540')
+
+    def play_against_comp():
+        window.withdraw()
+        GameUI.play_against_comp()
+        window.update()
+        window.deiconify()
+
+    def play_against_player():
+        window.withdraw()
+        GameUI.play_against_player()
+        window.update()
+        window.deiconify()
+
+    tk.Button(window, text="Play Against Computer", font=("Cooper Black", 24),
+              background="white", foreground='black', command=play_against_comp).pack(pady=10)
+    tk.Button(window, text="Play Against Another Player", font=("Cooper Black", 24),
+              background="white", foreground='black', command=play_against_player).pack(pady=10)
+    tk.Button(window, text="Statistics", font=("Cooper Black", 24),
+              background="white", foreground='black').pack(pady=10)
+    tk.Label(window, text="", background='light blue').pack()
+    tk.Button(window, text="Change Username", font=("Cooper Black", 12),
+              background="white", foreground='black').pack(pady=5)
+    tk.Button(window, text="Delete User", font=("Cooper Black", 12),
+              background="white", foreground='black').pack(pady=5)
+
+    window.mainloop()
+
+
+def login_button_click():
+    try:
+        global incorrect
+        incorrect.destroy()
+    except NameError:
+        pass
+    GameUI.logged_in_user = User.verify_login(username_login.get(), password_login.get())
+    if GameUI.logged_in_user != "Username or Password Incorrect":
+        screen.destroy()
+        menu_screen()
+    else:
+        incorrect = ttk.Label(text="Username or Password Incorrect", font=("Cooper black", 12),
+                              foreground='black', background='light blue')
+        incorrect.pack(pady=5)
+
+
+def login_screen():
+    global screen, username_login, password_login
+    screen = ThemedTk(theme="arc")
+    screen.geometry('880x540')
+    screen.title("© Battleship by Shani Daniel ©")
+    screen.configure(background='light blue')
+    style_log = ttk.Style()
+
+    ttk.Label(text='Welcome to Battleship', font=("Broadway", 50), foreground='black', background='light blue').pack(pady=40)
+    ttk.Label(text='Login:', font=("Cooper black", 32), foreground='black', background='light blue').pack(pady=20)
+
+    username_login = tk.StringVar()
+    password_login = tk.StringVar()
+    ttk.Label(screen, text="Username:", font=("Cooper black", 14), foreground='black',
+              background='light blue').pack()
+    tk.Entry(screen, textvariable=username_login).pack()
+    ttk.Label(screen, text="Password:", font=("Cooper black", 14), foreground='black',
+              background='light blue').pack()
+    tk.Entry(screen, textvariable=password_login).pack()
+    style_log.configure('log.TButton', font=('Cooper Black', 16), foreground='black')
+    style_log.configure('reg.TButton', font=('Cooper Black', 13), foreground='black')
+    ttk.Button(screen, text="Sign in", style='log.TButton', command=login_button_click).pack(pady=15)
+    ttk.Button(screen, text="Register", style='reg.TButton', command=register).pack()
+
+    screen.mainloop()
+
+
+login_screen()
