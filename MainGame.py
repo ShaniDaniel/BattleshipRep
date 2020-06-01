@@ -82,6 +82,9 @@ def menu_screen():
               background='light blue').pack(pady=50)
     window.geometry('880x540')
 
+    style = ttk.Style(window)
+    style.configure('Option.TButton', font=('Cooper Black', 24), foreground='black')
+
     def play_against_comp():
         window.withdraw()
         GameUI.play_against_comp()
@@ -94,12 +97,12 @@ def menu_screen():
         window.update()
         window.deiconify()
 
-    tk.Button(window, text="Play Against Computer", font=("Cooper Black", 24),
-              background="white", foreground='black', command=play_against_comp).pack(pady=10)
-    tk.Button(window, text="Play Against Another Player", font=("Cooper Black", 24),
-              background="white", foreground='black', command=play_against_player).pack(pady=10)
-    tk.Button(window, text="Statistics", font=("Cooper Black", 24),
-              background="white", foreground='black').pack(pady=10)
+    def stats():
+        stats_screen()
+
+    ttk.Button(window, text="Play Against Computer", style='Option.TButton', command=play_against_comp).pack(pady=10)
+    ttk.Button(window, text="Play Against Another Player", style='Option.TButton', command=play_against_player).pack(pady=10)
+    ttk.Button(window, text="Statistics", style='Option.TButton', command=stats).pack(pady=10)
     tk.Label(window, text="", background='light blue').pack()
     tk.Button(window, text="Change Username", font=("Cooper Black", 12),
               background="white", foreground='black').pack(pady=5)
@@ -150,6 +153,53 @@ def login_screen():
     ttk.Button(screen, text="Register", style='reg.TButton', command=register).pack()
 
     screen.mainloop()
+
+
+def stats_screen():
+    cursor = User.db_connect()
+    cursor.execute("SELECT TOP(5) [Username], [NumberofWinnings] FROM [Users] WHERE [ID]!=0 ORDER BY [NumberofWinnings]"
+                   " DESC")
+    rows = cursor.fetchall()
+    stats_win = ThemedTk(theme="Smog")
+    style = ttk.Style(stats_win)
+    style.configure("Treeview.Heading", font=("Calibri Bold", 14))
+    style.configure("Treeview", font=("Calibri", 12))
+
+    ttk.Label(stats_win, text='Top Players', font=("Cooper black", 32), foreground='black', background='light blue')\
+        .pack(pady=30)
+    frame = ttk.Frame(stats_win)
+    frame.pack(padx=20, pady=20)
+
+    table = ttk.Treeview(frame, columns=(1, 2), show="headings", height='5')
+
+    table.column(1, anchor="c")
+    table.column(2, anchor="c")
+    table.pack(fill="both", expand=True)
+
+    table.heading(1, text="Player")
+    table.heading(2, text="Number of Winnings")
+
+    for row in rows:
+        table.insert("", "end", values=list(row))
+    stats_win.geometry('540x540')
+    stats_win.title("© Battleship by Shani Daniel ©")
+    stats_win.configure(background='light blue')
+
+    num_games = GameUI.logged_in_user.num_of_games
+    num_wins = GameUI.logged_in_user.num_of_wins
+    if num_games != 0:
+        win_per = int(100 * (num_wins/num_games))
+    else:
+        win_per = 0
+    ttk.Label(stats_win, text='Your Statistics:', font=("Cooper Black", 20), foreground='black', background='light blue').pack(pady=20)
+    ttk.Label(stats_win, text='Number of games you played: %s' % num_games, font=("Calibri Bold", 16),
+              foreground='black', background='light blue').pack(pady=5)
+    ttk.Label(stats_win, text='Number of games you won: %s' % num_wins, font=("Calibri Bold", 16), foreground='black',
+              background='light blue').pack(pady=5)
+    ttk.Label(stats_win, text='Winning percentage: %s%%' % win_per, font=("Calibri Bold", 16), foreground='black',
+              background='light blue').pack(pady=5)
+
+    stats_win.mainloop()
 
 
 login_screen()
