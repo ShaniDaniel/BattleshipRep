@@ -67,18 +67,23 @@ class User:
     @staticmethod
     def change_username(_id, new_username):
         cursor = User.db_connect()
+        cursor.execute("SELECT * FROM [Users] WHERE [Username]=?", new_username)
+        # selects all users with the same username in the db table and returns a list if exists.
+        rows = cursor.fetchall()  # executes SQL command and puts the result into rows
+        if len(rows) > 0:  # checks that there are no existing users with this username
+            return "Username already exists"
         cursor.execute("UPDATE [Users] SET [Username]=? WHERE [ID]=?", new_username, _id)  # changes username in the db
         cursor.commit()  # executes SQL command
-        return "Success"
+        return "Username changed"
     
     @staticmethod
     def add_score(_id, won=False):
+        """adds user's score for statistics accordingly if he won or lost"""
         cursor = User.db_connect()
         if won:
             cursor.execute("""UPDATE [Users] SET
-                    [NumberOfWinnings]=(select [NumberOfWinnings]+1 from [Users] WHERE [ID]=?) AND
-                    [NumberOfGames]=(select [NumberOfGames]+1 from [Users] WHERE [ID]=?)
-                    "WHERE [ID]=?""", _id, _id, _id)
+                    [NumberOfWinnings]=(select [NumberOfWinnings]+1 from [Users] WHERE [ID]=?)
+                    WHERE [ID]=?""", _id, _id)
         else:
             cursor.execute("""UPDATE [Users] SET
                             [NumberOfGames]=(select [NumberOfGames]+1 from [Users] WHERE [ID]=?)
@@ -88,6 +93,8 @@ class User:
 
     @staticmethod
     def verify_login(username, password):
+        """makes sure the user inserted valid credentials logging in and creates a User object that stores it's
+         data from the database"""
         cursor = User.db_connect()
         cursor.execute("SELECT * FROM [Users] WHERE [Username]=? AND [Password]=?", username, password)
         rows = cursor.fetchall()
