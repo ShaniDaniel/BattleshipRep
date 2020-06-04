@@ -51,7 +51,7 @@ class GameUI:
                            "To place a ship, press the cube you want it to start and then the cube you want it to end.",
                            3)
         GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                   " Now, place the ship that is 5 cubes long", 4)
+                                   " Now, place the ship that is *5* cubes long", 4)
 
     @staticmethod
     def placing_ships(screen, event, player, start_game, game_over):
@@ -69,16 +69,16 @@ class GameUI:
                     if last_ship.cube_start is not None and last_ship.cube_end is not None:
                         GameUI.clear_title(screen, 4)
                         GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, place the ship that is %s cubes long" % ship.size, 4)
+                                                   " Now, place the ship that is *%s* cubes long" % ship.size, 4)
                 except AttributeError:  # if last_ship wasn't initialized yet
                     GameUI.clear_title(screen, 4)
                     GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                               " Now, place the ship that is 5 cubes long", 4)
+                                               " Now, place the ship that is *5* cubes long", 4)
 
                 last_ship = ship  # remembers the ship before the current ship
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and start_game is False and game_over is not True:
-            # deletes a placed ship if the player right-clicked it
+            # deletes a placed ship if the player right-clicks it
             pos = pygame.mouse.get_pos()  # gets current mouse position
             for ship in player.ships:
                 if BoardUI.get_cubes_position(player, pos) in player.ship_pos.keys() and start_game is False:
@@ -86,7 +86,7 @@ class GameUI:
                         GameUI.clear_title(screen, 4)
                         BoardUI.del_ship(screen, ship)
                         GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, replace the ship that is %s cubes long" % ship.size,
+                                                   " Now, replace the ship that is *%s* cubes long" % ship.size,
                                            4)
                         break
 
@@ -111,6 +111,7 @@ class GameUI:
 
     @staticmethod
     def play_against_comp():
+        """running the game against the computer"""
         from UI.BoardUI import BoardUI
 
         Cube.length = 40
@@ -125,7 +126,7 @@ class GameUI:
         pygame.init()
         done = False
         clock = pygame.time.Clock()
-        pygame.display.set_caption("© Battleship by Shani Daniel ©")  # set window title
+        pygame.display.set_caption("© Battleship by Shani Daniel ©")  # sets window title
 
         screen = pygame.display.set_mode(
             (opponent.board.end.x + player.board.start.x + Cube.length, opponent.board.end.y + 80))
@@ -133,11 +134,12 @@ class GameUI:
 
         GameUI.write_title(screen, "Hello %s! Welcome to Battleship! You are going to play against the computer."
                            % GameUI.logged_in_user.username, 0)
-        GameUI.placing_rules(screen)
+        GameUI.placing_rules(screen)  # shows the rules on the game screen
 
         BoardUI.draw_board(screen, player.board)
         BoardUI.draw_board(screen, opponent.board)
-        GameAgainstComp.rand_place_ships(opponent)
+
+        GameAgainstComp.rand_place_ships(opponent)  # the computer randomly places it's ships
 
         player.board.available_cubes_dict(player)
 
@@ -155,7 +157,7 @@ class GameUI:
                     else:
                         done = True
 
-                GameUI.placing_ships(screen, event, player, start_game, game_over)
+                GameUI.placing_ships(screen, event, player, start_game, game_over)  # lets the player place his ships
 
                 ship_count = 0
                 for ship in player.ships:
@@ -233,6 +235,7 @@ class GameUI:
 
     @staticmethod
     def play_against_player():
+        """running the game against another player"""
         from UI.BoardUI import BoardUI
 
         Cube.length = 40
@@ -247,7 +250,7 @@ class GameUI:
         pygame.init()
         done = False
         clock = pygame.time.Clock()
-        pygame.display.set_caption("© Battleship by Shani Daniel ©")  # set window title
+        pygame.display.set_caption("© Battleship by Shani Daniel ©")  # sets window title
 
         screen = pygame.display.set_mode(
             (player2.board.end.x + player1.board.start.x + Cube.length, player2.board.end.y + 80))
@@ -264,7 +267,7 @@ class GameUI:
         game_over = False
         stat_check = False
 
-        GameUI.placing_rules(screen)
+        GameUI.placing_rules(screen)  # shows the rules on the game screen
 
         while not done:
             for event in pygame.event.get():
@@ -276,14 +279,16 @@ class GameUI:
                         done = True
 
                 if player1_turn is True and start_game is False and game_over is False:
+                    # lets the first player place his ships
                     if GameUI.player_place_ships(screen, event, player1, start_game, game_over) == "success":
                         player1_turn = False
                         GameUI.clear_title(screen, 4)
                         GameUI.write_title(screen,
                                            "To delete a placed ship, right-click the selected ship. "
-                                           "Now, place the ship that is 5 cubes long", 4)
+                                           "Now, place the ship that is *5* cubes long", 4)
                         for ship in player1.ships:
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
+                            # after he placed all his ships, they disappear from the screen
                     break
 
                 if player1_turn is False and start_game is False and game_over is False:
@@ -293,6 +298,7 @@ class GameUI:
                                        " Your board is the RIGHT board.", 2)
 
                     if GameUI.player_place_ships(screen, event, player2, start_game, game_over) == "success":
+                        # lets the second player place his ships
                         player1_turn = True
                         start_game = True
                         for line in range(5):
@@ -306,6 +312,7 @@ class GameUI:
                         break
 
                 if player1.check_if_lost() is True:
+                    # sets what happens if the first player loses
                     GameUI.clear_title(screen, 0, 110)
                     GameUI.write_title(screen, "%s Won!" % player2.username, 1, 48)
                     start_game = False
@@ -318,6 +325,7 @@ class GameUI:
                     break
 
                 if player2.check_if_lost() is True:
+                    # sets what happens if the second player loses
                     GameUI.clear_title(screen, 0, 110)
                     GameUI.write_title(screen, "%s Won!" % player1.username, 1, 48)
                     if game_over is False:
@@ -333,10 +341,13 @@ class GameUI:
                     break
 
                 if start_game is True and game_over is False:
+
                     if stat_check is False:
                         GameUI.logged_in_user.num_of_games += 1
                         User.add_score(GameUI.logged_in_user.id)
                         stat_check = True
+                        # when the game begins, adds it to the players statistics
+
                     if player1_turn is True and player1.check_if_lost() is False:
                         GameUI.clear_title(screen, 0.5, 40)
                         GameUI.write_title(screen, "Play!", 0.5, 40)

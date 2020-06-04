@@ -9,9 +9,11 @@ class BoardUI:
 
     color_index = {"blue": (0, 0, 255), "red": (255, 0, 0), "grey": (210, 210, 210), "orange": (252, 168, 78),
                    "light blue": (173, 216, 230), "white": (255, 255, 255)}
+    # a dictionary of different useful colors for the game by their rgb values
 
     @staticmethod
     def draw_board(screen, board):
+        """draws the board"""
         for x in range(board.start.x, board.end.x + Cube.length, Cube.length):
             for y in range(board.start.y,  board.end.y + Cube.length, Cube.length):
                 pygame.draw.rect(screen, BoardUI.color_index["white"],
@@ -19,12 +21,14 @@ class BoardUI:
 
     @staticmethod
     def get_cubes_position(player, position):
+        #  gets each cubes position to locate if the player pressed a cube and which one
         for cube in player.board.cubes_list:
             if cube.x <= position[0] <= cube.x + Cube.length - 1 and cube.y <= position[1] <= cube.y + Cube.length - 1:
                 return cube
 
     @staticmethod
     def draw_x(screen, cube):
+        """draws an "X" sign on the cube"""
         try:
             pygame.draw.line(screen, (0, 0, 0), (cube.x + 3, cube.y + 3),
                              (cube.x + Cube.length - 3, cube.y + (Cube.length - 3)), 3)
@@ -35,6 +39,7 @@ class BoardUI:
      
     @staticmethod
     def color_cube(screen, cube, color):
+        """colors a cube a certain color"""
         try:
             pygame.draw.rect(screen, color, pygame.Rect(cube.x, cube.y, Cube.length - 1, Cube.length - 1))
         except AttributeError:
@@ -42,6 +47,7 @@ class BoardUI:
 
     @staticmethod
     def color_ship(screen, ship, color):
+        """colors a whole ship a certain color"""
         for x in range(min(ship.cube_start.x, ship.cube_end.x), 
                        max(ship.cube_start.x, ship.cube_end.x) + 1, Cube.length):
             for y in range(min(ship.cube_start.y, ship.cube_end.y), 
@@ -50,6 +56,7 @@ class BoardUI:
                 
     @staticmethod
     def place_ships(screen, player, pos):
+        """places the user's ship py his given cubes and colors these ships blue"""
         for ship in player.ships:
             if ship.cube_end is not None:
                 continue
@@ -79,11 +86,14 @@ class BoardUI:
 
     @staticmethod         
     def del_ship(screen, ship):
+        """deletes a ship from the screen and calls the del_ship function to delete its information"""
         BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
         ship.del_ship()
         
     @staticmethod
     def shoot(screen, player, pos):
+        """shoots the given cube by calling the "shoot" function and coloring the cube red if it contains a ship, and
+        draws an X if it doesn't"""
         cube_pos = BoardUI.get_cubes_position(player, pos)
         game_shoot = GameManager.shoot(player, cube_pos)
         if game_shoot == "success":
