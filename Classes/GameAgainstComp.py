@@ -18,7 +18,8 @@ class GameAgainstComp(GameManager):
                 not_done = True  # used to create the loop that searches for a valid and available ship's coordinates
                 ship_start = ship_end = Cube(0, 0)  # initializes the ship's start and end cubes that will be randomized
                 # inside the loop
-                m = ship.position_m()  # the factor that's used to check if the ship's end will not exceed the board
+                m = ship.m_factor
+                # the factor that's used to check if the ship's end will not exceed the board
                 available_cubes = []  # all the cubes that are available to place a ship on
                 not_available_cubes = []  # all the cubes that are not available to place a ship on
                 for key in player.board.cubes_availability:
@@ -32,8 +33,12 @@ class GameAgainstComp(GameManager):
                     ship_start = random.choice(available_cubes)  # randomly chooses the ship's start from the
                     # available cubes
                     temp += 1
-                    if player.board.start.x + m * Cube.length <= ship_start.x <= player.board.end.x -\
-                            m * Cube.length:
+
+                    def is_valid(value, axis):
+                        return player.board.start.x + m * Cube.length <= value <= player.board.end.x - \
+                            m * Cube.length
+
+                    if is_valid(ship_start.x, axis='x'):
                         ship_end.x = random.choice(
                             [ship_start.x - m * Cube.length, ship_start.x, ship_start.x + m * Cube.length])
                     elif player.board.start.x + m * Cube.length <= ship_start.x:
@@ -86,7 +91,7 @@ class GameAgainstComp(GameManager):
         target = 0
         for ship in player.ships:
             temp = []
-            if ship.is_ship_sank(player) is False:
+            if not ship.is_ship_sunk(player):
                 for x in player.ship_pos:
                     if player.ship_pos[x] == ship.id:
                         temp.append(x)

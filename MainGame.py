@@ -7,7 +7,7 @@ from UI.GameUI import GameUI
 from Classes.User import User
 
 
-def register_user():
+def register_user(reg_screen, first_name, last_name, username, email, password, confirm):
     """takes the values the user entered when signing up, checks for errors and shows them on the screen. 
      if everything is valid the user is registered"""
     try:
@@ -23,19 +23,19 @@ def register_user():
     if len(first_name.get()) == 0 or len(last_name.get()) == 0 or len(username.get()) == 0 or len(email.get()) == 0 or \
             len(password.get()) == 0 or len(confirm.get()) == 0:
         error_label("missing required info")
-    elif first_name.get().isalpha() is False:
+    elif not first_name.get().isalpha():
         error_label("Invalid first name")
-    elif last_name.get().isalpha() is False:
+    elif not last_name.get().isalpha():
         error_label("Invalid last name")
     elif len(username.get()) > 10:
         error_label("username can't exceed 10 characters")
-    elif username.get().isalnum() is False:
+    elif not username.get().isalnum():
         error_label("username must contain only letters and numbers")
     elif len(email.get().split('@')) != 2:
         error_label("Invalid email")
     elif len(password.get()) < 6:
         error_label("password must be at least 6 characters long")
-    elif password.get().isalnum() is True and (password.get().isalpha() is True or password.get().isnumeric() is True):
+    elif password.get().isalnum() and (password.get().isalpha() or password.get().isnumeric()):
         error_label("password must contain letters and numbers")
     elif password.get() != confirm.get():
         error_label("password's don't match")
@@ -47,7 +47,6 @@ def register_user():
 
 
 def register():
-    global reg_screen, first_name, last_name, username, email, password, confirm
     reg_screen = tk.Toplevel(screen)  # adds the registration screen on top of the main signing-in screen
     reg_screen.configure(background='light blue')
     reg_screen.title("© Battleship by Shani Daniel ©")
@@ -77,8 +76,12 @@ def register():
     field(confirm, "Confirm Password: ")
     # creating each field on the screen
 
+    def register_command():
+        register_user(reg_screen, first_name, last_name, username, email, password, confirm)
+
     ttk.Style().configure('reg2.TButton', font=('Calibri Bold', 12), foreground='black')  # styling the register button
-    ttk.Button(reg_screen, text="Register", style='reg2.TButton', command=register_user).pack(pady=15)  # creating it
+    ttk.Button(reg_screen, text="Register", style='reg2.TButton',
+               command=register_command).pack(pady=15)  # creating it
 
 
 def menu_screen():

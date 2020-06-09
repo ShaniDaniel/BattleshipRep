@@ -2,7 +2,7 @@ import pygame
 from Classes.Cube import Cube
 from Classes.GameAgainstPlayer import GameAgainstPlayer
 from Classes.GameManager import GameManager
-from UI.GameUI import GameUI
+from UI.TextUI import TextUI
 
 
 class BoardUI:
@@ -10,6 +10,8 @@ class BoardUI:
     color_index = {"blue": (0, 0, 255), "red": (255, 0, 0), "grey": (210, 210, 210), "orange": (252, 168, 78),
                    "light blue": (173, 216, 230), "white": (255, 255, 255)}
     # a dictionary of different useful colors for the game by their rgb values
+    padding_value = 3  # padding for creating more suitable shapes
+    bottom_line = 29.5  # the line number underneath the board
 
     @staticmethod
     def draw_board(screen, board):
@@ -28,14 +30,12 @@ class BoardUI:
 
     @staticmethod
     def draw_x(screen, cube):
+        padding_value = BoardUI.padding_value
         """draws an "X" sign on the cube"""
-        try:
-            pygame.draw.line(screen, (0, 0, 0), (cube.x + 3, cube.y + 3),
-                             (cube.x + Cube.length - 3, cube.y + (Cube.length - 3)), 3)
-            pygame.draw.line(screen, (0, 0, 0), (cube.x + 3, cube.y + (Cube.length - 3)),
-                             (cube.x + (Cube.length - 3), cube.y + 3), 3)
-        except AttributeError:
-            pass
+        pygame.draw.line(screen, (0, 0, 0), (cube.x + padding_value, cube.y + padding_value),
+                         (cube.x + Cube.length - padding_value, cube.y + (Cube.length - padding_value)), padding_value)
+        pygame.draw.line(screen, (0, 0, 0), (cube.x + padding_value, cube.y + (Cube.length - padding_value)),
+                         (cube.x + (Cube.length - padding_value), cube.y + padding_value), padding_value)
      
     @staticmethod
     def color_cube(screen, cube, color):
@@ -48,15 +48,14 @@ class BoardUI:
     @staticmethod
     def color_ship(screen, ship, color):
         """colors a whole ship a certain color"""
-        for x in range(min(ship.cube_start.x, ship.cube_end.x), 
-                       max(ship.cube_start.x, ship.cube_end.x) + 1, Cube.length):
-            for y in range(min(ship.cube_start.y, ship.cube_end.y), 
-                           max(ship.cube_start.y, ship.cube_end.y) + 1, Cube.length):
+        for x in range(ship.start_x, ship.end_x + 1, Cube.length):
+            for y in range(ship.start_y, ship.end_y + 1, Cube.length):
                 BoardUI.color_cube(screen, Cube(x, y), color)
                 
     @staticmethod
     def place_ships(screen, player, pos):
         """places the user's ship py his given cubes and colors these ships blue"""
+        bottom_line = BoardUI.bottom_line
         for ship in player.ships:
             if ship.cube_end is not None:
                 continue
@@ -68,14 +67,14 @@ class BoardUI:
                 ship.cube_end = BoardUI.get_cubes_position(player, pos)
                 ship_check = GameAgainstPlayer.place_ship(player, ship, ship.cube_start, ship.cube_end)
                 if ship_check != "success":
-                    GameUI.clear_title(screen, 29.5)
-                    GameUI.write_title(screen, ship_check, 29.5)
+                    TextUI.clear_title(screen, bottom_line)
+                    TextUI.write_title(screen, ship_check, bottom_line)
                     BoardUI.color_cube(screen, ship.cube_start, BoardUI.color_index["white"])
                     ship.cube_start = None
                     ship.cube_end = None
                     break
                 else:
-                    GameUI.clear_title(screen, 29.5)
+                    TextUI.clear_title(screen, bottom_line)
                     BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     return ship
             else:

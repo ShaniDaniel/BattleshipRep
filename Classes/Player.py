@@ -23,10 +23,6 @@ class Player:
     def check_if_lost(self):
         count = 0
         for ship in self.ships:
-            if ship.is_ship_sank(self) is True:
-                count += 1
-        if count == len(self.ships):
-            return True
-        else:
-            return False
+            count += ship.is_ship_sunk(self)
+        return count == len(self.ships)
 

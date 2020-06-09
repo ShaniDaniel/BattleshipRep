@@ -7,6 +7,8 @@ from Classes.GameAgainstComp import GameAgainstComp
 from Classes.Player import Player
 from Classes.Board import Board
 from Classes.User import User
+from UI.BoardUI import BoardUI
+from UI.TextUI import TextUI
 
 
 class GameUI:
@@ -21,36 +23,17 @@ class GameUI:
                                    "\nIf the game started, it will \nbe counted as loss.")
 
     @staticmethod
-    def write_title(screen, text, line_num, font=24):
-        """displays the given text on the screen at the given line number"""
-        title_font = pygame.font.Font(None, font)
-        text_final = title_font.render(text, 1, (0, 0, 0))
-        screen.blit(text_final, ((pygame.display.get_surface().get_size()[0] - text_final.get_width()) / 2,
-                                 text_final.get_height() * line_num + 5))
-        return "success"
-
-    @staticmethod
-    def clear_title(screen, line_num, font=24):
-        """deletes the text from the screen at the given line number"""
-        from UI.BoardUI import BoardUI
-        title_font = pygame.font.Font(None, font)
-        text_final = title_font.render(" ", 1, (0, 0, 0))
-        pygame.draw.rect(screen, BoardUI.color_index["light blue"], (0, text_final.get_height() * line_num + 5,
-                         pygame.display.get_surface().get_size()[0], text_final.get_height()))
-        return "success"
-
-    @staticmethod
     def placing_rules(screen):
         """shows the basic rules of the game on the screen"""
-        GameUI.write_title(screen,
+        TextUI.write_title(screen,
                            "First of all, place your ships. You can't place a ship on top or next to another ship,",
                            1)
-        GameUI.write_title(screen,
+        TextUI.write_title(screen,
                            "and you must place your ships horizontally or vertically. Your board is the left board.", 2)
-        GameUI.write_title(screen,
+        TextUI.write_title(screen,
                            "To place a ship, press the cube you want it to start and then the cube you want it to end.",
                            3)
-        GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
+        TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
                                    " Now, place the ship that is *5* cubes long", 4)
 
     @staticmethod
@@ -67,12 +50,12 @@ class GameUI:
                     BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                 try:  # checks if the ship before the current ship was fully placed
                     if last_ship.cube_start is not None and last_ship.cube_end is not None:
-                        GameUI.clear_title(screen, 4)
-                        GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
+                        TextUI.clear_title(screen, 4)
+                        TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
                                                    " Now, place the ship that is *%s* cubes long" % ship.size, 4)
                 except AttributeError:  # if last_ship wasn't initialized yet
-                    GameUI.clear_title(screen, 4)
-                    GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
+                    TextUI.clear_title(screen, 4)
+                    TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
                                                " Now, place the ship that is *5* cubes long", 4)
 
                 last_ship = ship  # remembers the ship before the current ship
@@ -83,9 +66,9 @@ class GameUI:
             for ship in player.ships:
                 if BoardUI.get_cubes_position(player, pos) in player.ship_pos.keys() and start_game is False:
                     if player.ship_pos[BoardUI.get_cubes_position(player, pos)] == ship.id:
-                        GameUI.clear_title(screen, 4)
+                        TextUI.clear_title(screen, 4)
                         BoardUI.del_ship(screen, ship)
-                        GameUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
+                        TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
                                                    " Now, replace the ship that is *%s* cubes long" % ship.size,
                                            4)
                         break
@@ -93,8 +76,8 @@ class GameUI:
     @staticmethod
     def player_place_ships(screen, event, player, start_game, game_over):
         """alters the original displayed rules to match the game against another player"""
-        GameUI.clear_title(screen, 0)
-        GameUI.write_title(screen,
+        TextUI.clear_title(screen, 0)
+        TextUI.write_title(screen,
                            "Hello! Here you can play against another player. %s, place your ships. "
                            "The other player- don't pick!" %
                            player.username.upper(), 0)
@@ -106,13 +89,12 @@ class GameUI:
                 ship_count += 1
         if ship_count == 5:  # checks if all the ships were placed
             for line in range(5):
-                GameUI.clear_title(screen, line)
+                TextUI.clear_title(screen, line)
                 return "success"
 
     @staticmethod
     def play_against_comp():
         """running the game against the computer"""
-        from UI.BoardUI import BoardUI
 
         Cube.length = 40
         player = Player(GameUI.logged_in_user.username)
@@ -132,7 +114,7 @@ class GameUI:
             (opponent.board.end.x + player.board.start.x + Cube.length, opponent.board.end.y + 80))
         screen.fill(BoardUI.color_index["light blue"])
 
-        GameUI.write_title(screen, "Hello %s! Welcome to Battleship! You are going to play against the computer."
+        TextUI.write_title(screen, "Hello %s! Welcome to Battleship! You are going to play against the computer."
                            % GameUI.logged_in_user.username, 0)
         GameUI.placing_rules(screen)  # shows the rules on the game screen
 
@@ -166,15 +148,15 @@ class GameUI:
                 if ship_count == 5:  # checks if all the ships were placed
                     start_game = True
                     for line in range(5):
-                        GameUI.clear_title(screen, line)
+                        TextUI.clear_title(screen, line)
 
                 if player.check_if_lost() is True:  # shows result if the game ended with loss
-                    GameUI.clear_title(screen, 0, 110)
-                    GameUI.write_title(screen, "You Lost!", 1, 48)
+                    TextUI.clear_title(screen, 0, 110)
+                    TextUI.write_title(screen, "You Lost!", 1, 48)
                     start_game = False
                     game_over = True
                     for ship in opponent.ships:
-                        if ship.is_ship_sank(opponent) is False:
+                        if not ship.is_ship_sunk(opponent):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     for cube in opponent.board.ship_shot:
                         BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
@@ -182,15 +164,15 @@ class GameUI:
 
                 if opponent.check_if_lost() is True:
                     # shows result if the game ended with win and adds it to the statistics
-                    GameUI.clear_title(screen, 0, 110)
-                    GameUI.write_title(screen, "You Won!", 1, 48)
+                    TextUI.clear_title(screen, 0, 110)
+                    TextUI.write_title(screen, "You Won!", 1, 48)
                     if game_over is False:
                         User.add_score(GameUI.logged_in_user.id, won=True)
                         GameUI.logged_in_user.num_of_wins += 1
                     start_game = False
                     game_over = True
                     for ship in player.ships:
-                        if ship.is_ship_sank(player) is False:
+                        if not ship.is_ship_sunk(player):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     for cube in player.board.ship_shot:
                         BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
@@ -204,16 +186,16 @@ class GameUI:
                         stat_check = True
 
                     if player_turn is True:  # runs the player's turn
-                        GameUI.write_title(screen, "Play!", 0.5, 40)
-                        GameUI.clear_title(screen, 2, 36)
-                        GameUI.write_title(screen, "Your Turn", 2, 36)
+                        TextUI.write_title(screen, "Play!", 0.5, 40)
+                        TextUI.clear_title(screen, 2, 36)
+                        TextUI.write_title(screen, "Your Turn", 2, 36)
                         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                             pos = pygame.mouse.get_pos()
                             if BoardUI.get_cubes_position(opponent, pos) is not None:
                                 if BoardUI.shoot(screen, opponent, pos) == "success":
                                     player_turn = False  # pass the turn to the computer
-                                    GameUI.clear_title(screen, 1, 66)
-                                    GameUI.write_title(screen, "%s's Turn" % opponent.username, 2, 36)
+                                    TextUI.clear_title(screen, 1, 66)
+                                    TextUI.write_title(screen, "%s's Turn" % opponent.username, 2, 36)
                         break
 
                     if opponent.check_if_lost() is False:
@@ -236,7 +218,6 @@ class GameUI:
     @staticmethod
     def play_against_player():
         """running the game against another player"""
-        from UI.BoardUI import BoardUI
 
         Cube.length = 40
         player1 = Player(GameUI.logged_in_user.username)
@@ -282,8 +263,8 @@ class GameUI:
                     # lets the first player place his ships
                     if GameUI.player_place_ships(screen, event, player1, start_game, game_over) == "success":
                         player1_turn = False
-                        GameUI.clear_title(screen, 4)
-                        GameUI.write_title(screen,
+                        TextUI.clear_title(screen, 4)
+                        TextUI.write_title(screen,
                                            "To delete a placed ship, right-click the selected ship. "
                                            "Now, place the ship that is *5* cubes long", 4)
                         for ship in player1.ships:
@@ -292,8 +273,8 @@ class GameUI:
                     break
 
                 if player1_turn is False and start_game is False and game_over is False:
-                    GameUI.clear_title(screen, 2)
-                    GameUI.write_title(screen,
+                    TextUI.clear_title(screen, 2)
+                    TextUI.write_title(screen,
                                        "and you must place your ships horizontally or vertically."
                                        " Your board is the RIGHT board.", 2)
 
@@ -302,23 +283,23 @@ class GameUI:
                         player1_turn = True
                         start_game = True
                         for line in range(5):
-                            GameUI.clear_title(screen, line)
-                        GameUI.write_title(screen,
+                            TextUI.clear_title(screen, line)
+                        TextUI.write_title(screen,
                                            "%s's Board                                                                 "
                                            "               Guest's Board"
-                                           % player1.username, 29.5)
+                                           % player1.username, BoardUI.bottom_line)
                         for ship in player2.ships:
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
                         break
 
                 if player1.check_if_lost() is True:
                     # sets what happens if the first player loses
-                    GameUI.clear_title(screen, 0, 110)
-                    GameUI.write_title(screen, "%s Won!" % player2.username, 1, 48)
+                    TextUI.clear_title(screen, 0, 110)
+                    TextUI.write_title(screen, "%s Won!" % player2.username, 1, 48)
                     start_game = False
                     game_over = True
                     for ship in player2.ships:
-                        if ship.is_ship_sank(player2) is False:
+                        if not ship.is_ship_sunk(player2):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     for cube in player2.board.ship_shot:
                         BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
@@ -326,15 +307,15 @@ class GameUI:
 
                 if player2.check_if_lost() is True:
                     # sets what happens if the second player loses
-                    GameUI.clear_title(screen, 0, 110)
-                    GameUI.write_title(screen, "%s Won!" % player1.username, 1, 48)
+                    TextUI.clear_title(screen, 0, 110)
+                    TextUI.write_title(screen, "%s Won!" % player1.username, 1, 48)
                     if game_over is False:
                         User.add_score(GameUI.logged_in_user.id, won=True)
                         GameUI.logged_in_user.num_of_wins += 1
                     start_game = False
                     game_over = True
                     for ship in player1.ships:
-                        if ship.is_ship_sank(player1) is False:
+                        if not ship.is_ship_sunk(player1):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     for cube in player1.board.ship_shot:
                         BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
@@ -349,17 +330,17 @@ class GameUI:
                         # when the game begins, adds it to the players statistics
 
                     if player1_turn is True and player1.check_if_lost() is False:
-                        GameUI.clear_title(screen, 0.5, 40)
-                        GameUI.write_title(screen, "Play!", 0.5, 40)
-                        GameUI.clear_title(screen, 2, 36)
-                        GameUI.write_title(screen, "%s's Turn" % player1.username, 2, 36)
+                        TextUI.clear_title(screen, 0.5, 40)
+                        TextUI.write_title(screen, "Play!", 0.5, 40)
+                        TextUI.clear_title(screen, 2, 36)
+                        TextUI.write_title(screen, "%s's Turn" % player1.username, 2, 36)
                         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                             pos = pygame.mouse.get_pos()
                             if BoardUI.get_cubes_position(player2, pos) is not None:
                                 if BoardUI.shoot(screen, player2, pos) == "success":
                                     player1_turn = False
-                                    GameUI.clear_title(screen, 1, 66)
-                                    GameUI.write_title(screen, "%s's Turn" % player2.username, 2, 36)
+                                    TextUI.clear_title(screen, 1, 66)
+                                    TextUI.write_title(screen, "%s's Turn" % player2.username, 2, 36)
                         break
 
                     if player1_turn is False and player2.check_if_lost() is False:
@@ -368,8 +349,8 @@ class GameUI:
                             if BoardUI.get_cubes_position(player1, pos) is not None:
                                 if BoardUI.shoot(screen, player1, pos) == "success":
                                     player1_turn = True
-                                    GameUI.clear_title(screen, 1, 66)
-                                    GameUI.write_title(screen, "%s's Turn" % player1.username, 2, 36)
+                                    TextUI.clear_title(screen, 1, 66)
+                                    TextUI.write_title(screen, "%s's Turn" % player1.username, 2, 36)
                         break
             pygame.display.flip()
             clock.tick(60)
