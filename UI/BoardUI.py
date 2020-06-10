@@ -56,7 +56,7 @@ class BoardUI:
     def place_ships(screen, player, pos):
         """places the user's ship py his given cubes and colors these ships blue"""
         bottom_line = BoardUI.bottom_line
-        for ship in player.ships:
+        for ship in player.board.ships:
             if ship.cube_end is not None:
                 continue
             if ship.cube_start is None:
@@ -84,10 +84,10 @@ class BoardUI:
                 break
 
     @staticmethod         
-    def del_ship(screen, ship):
+    def del_ship(screen, ship, player):
         """deletes a ship from the screen and calls the del_ship function to delete its information"""
         BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
-        ship.del_ship()
+        ship.del_ship(player)
         
     @staticmethod
     def shoot(screen, player, pos):

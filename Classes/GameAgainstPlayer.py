@@ -35,7 +35,7 @@ class GameAgainstPlayer(GameManager):
                 if (x, y) in not_available_cubes:
                     return "Can't place ship on top or next to another ship."
         else:
-            ship.set_position(Cube(ship_start_x, ship_start_y),
+            ship.set_position(player, Cube(ship_start_x, ship_start_y),
                               Cube(ship_end_x, ship_end_y))
             for x in range(ship_start_x - Cube.length,
                            ship_end_x + Cube.length + 1, Cube.length):

@@ -5,9 +5,9 @@ class GameManager:
 
     @staticmethod
     def is_not_shot(player, target):
-        for cube in player.cubes_not_shot:  # checks if the target was not shot yet
+        for cube in player.board.cubes_not_shot:  # checks if the target was not shot yet
             if cube.x == target.x and cube.y == target.y:
-                player.cubes_not_shot.remove(cube)
+                player.board.cubes_not_shot.remove(cube)
                 return True
         return False
 
@@ -18,7 +18,7 @@ class GameManager:
                 player.board.end.y:  # checks if the target is inside the board
             is_not_shot = GameManager.is_not_shot(player, target)
             if is_not_shot:
-                for cube in player.ship_pos:  # checks if a ship was shot
+                for cube in player.board.ship_pos:  # checks if a ship was shot
                     if cube.x == target.x and cube.y == target.y:
                         player.board.ship_shot.append(cube)  # if a ship was shot, adds the cube to the ship_shot list
                         return "success"
@@ -30,4 +30,3 @@ class GameManager:
                 return "You already shot that place."
         else:
             return "Outside of board"
-

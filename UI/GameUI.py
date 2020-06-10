@@ -45,7 +45,7 @@ class GameUI:
             pos = pygame.mouse.get_pos()  # gets current mouse position
             BoardUI.place_ships(screen, player, pos)
             last_ship = None
-            for ship in player.ships:
+            for ship in player.board.ships:
                 if ship.cube_end is not None and start_game is False and game_over is False:
                     BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                 try:  # checks if the ship before the current ship was fully placed
@@ -63,11 +63,11 @@ class GameUI:
         if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and start_game is False and game_over is not True:
             # deletes a placed ship if the player right-clicks it
             pos = pygame.mouse.get_pos()  # gets current mouse position
-            for ship in player.ships:
-                if BoardUI.get_cubes_position(player, pos) in player.ship_pos.keys() and start_game is False:
-                    if player.ship_pos[BoardUI.get_cubes_position(player, pos)] == ship.id:
+            for ship in player.board.ships:
+                if BoardUI.get_cubes_position(player, pos) in player.board.ship_pos.keys() and start_game is False:
+                    if player.board.ship_pos[BoardUI.get_cubes_position(player, pos)] == ship.id:
                         TextUI.clear_title(screen, 4)
-                        BoardUI.del_ship(screen, ship)
+                        BoardUI.del_ship(screen, ship, player)
                         TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
                                                    " Now, replace the ship that is *%s* cubes long" % ship.size,
                                            4)
@@ -84,7 +84,7 @@ class GameUI:
         GameUI.placing_ships(screen, event, player, start_game, game_over)
 
         ship_count = 0
-        for ship in player.ships:
+        for ship in player.board.ships:
             if ship.cube_start is not None and ship.cube_end is not None:
                 ship_count += 1
         if ship_count == 5:  # checks if all the ships were placed
@@ -99,11 +99,11 @@ class GameUI:
         Cube.length = 40
         player = Player(GameUI.logged_in_user.username)
         player.board = Board(Cube(20, 100), Cube(380, 460))
-        player.cubes_not_shot_list()
+        player.board.cubes_not_shot_list()
 
         opponent = Player("Computer")
         opponent.board = Board(Cube(460, 100), Cube(820, 460))
-        opponent.cubes_not_shot_list()
+        opponent.board.cubes_not_shot_list()
 
         pygame.init()
         done = False
@@ -142,7 +142,7 @@ class GameUI:
                 GameUI.placing_ships(screen, event, player, start_game, game_over)  # lets the player place his ships
 
                 ship_count = 0
-                for ship in player.ships:
+                for ship in player.board.ships:
                     if ship.cube_start is not None and ship.cube_end is not None:
                         ship_count += 1
                 if ship_count == 5:  # checks if all the ships were placed
@@ -171,7 +171,7 @@ class GameUI:
                         GameUI.logged_in_user.num_of_wins += 1
                     start_game = False
                     game_over = True
-                    for ship in player.ships:
+                    for ship in player.board.ships:
                         if not ship.is_ship_sunk(player):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                     for cube in player.board.ship_shot:
@@ -222,11 +222,11 @@ class GameUI:
         Cube.length = 40
         player1 = Player(GameUI.logged_in_user.username)
         player1.board = Board(Cube(20, 100), Cube(380, 460))
-        player1.cubes_not_shot_list()
+        player1.board.cubes_not_shot_list()
 
         player2 = Player("Guest")
         player2.board = Board(Cube(460, 100), Cube(820, 460))
-        player2.cubes_not_shot_list()
+        player2.board.cubes_not_shot_list()
 
         pygame.init()
         done = False

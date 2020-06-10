@@ -9,12 +9,15 @@ class GameAgainstComp(GameManager):
     def rand_place_ships(player):
         """randomly places the ship on the opponent's board"""
         try_again = True
+        ship_start_x = None
+        ship_end_x = None
+        ship_start_y = None
+        ship_end_y = None
         while try_again is True:
             player.board.available_cubes_dict(player)
-            player.ships_place = {}
-            player.ship_pos = {}
+            player.board.ship_pos = {}
             temp = 0
-            for ship in player.ships:
+            for ship in player.board.ships:
                 not_done = True  # used to create the loop that searches for a valid and available ship's coordinates
                 ship_start = ship_end = Cube(0, 0)  # initializes the ship's start and end cubes that will be randomized
                 # inside the loop
@@ -35,8 +38,12 @@ class GameAgainstComp(GameManager):
                     temp += 1
 
                     def is_valid(value, axis):
-                        return player.board.start.x + m * Cube.length <= value <= player.board.end.x - \
-                            m * Cube.length
+                        if axis == 'x':
+                            return player.board.start.x + m * Cube.length <= value <= player.board.end.x - \
+                                m * Cube.length
+                        elif axis == 'y':
+                            return player.board.start.y + m * Cube.length <= value <= player.board.end.y - \
+                                   m * Cube.length
 
                     if is_valid(ship_start.x, axis='x'):
                         ship_end.x = random.choice(
@@ -51,7 +58,7 @@ class GameAgainstComp(GameManager):
                     if ship_start.x != ship_end.x:
                         ship_end.y = ship_start.y
                     else:
-                        if player.board.start.y + m * Cube.length <= ship_start.y <= player.board.end.y - m * Cube.length:
+                        if is_valid(ship_start.y, axis='y'):
                             ship_end.y = random.choice([ship_start.y - m * Cube.length, ship_start.y + m * Cube.length])
                         elif player.board.start.y + m * Cube.length <= ship_start.y:
                             ship_end.y = ship_start.y - m * Cube.length
@@ -60,10 +67,15 @@ class GameAgainstComp(GameManager):
                     # checks where the ship has enough place to be placed vertically (if it's too close to the start
                     # or the bottom of the board) and chooses the ship's end accordingly
 
-                    for x in range(min(ship_start.x, ship_end.x),
-                                   max(ship_start.x, ship_end.x) + 1, Cube.length):
-                        for y in range(min(ship_start.y, ship_end.y),
-                                       max(ship_start.y, ship_end.y) + 1, Cube.length):
+                    ship_start_x = min(ship_start.x, ship_end.x)
+                    ship_end_x = max(ship_start.x, ship_end.x)
+                    ship_start_y = min(ship_start.y, ship_end.y)
+                    ship_end_y = max(ship_start.y, ship_end.y)
+
+                    for x in range(ship_start_x,
+                                   ship_end_x + 1, Cube.length):
+                        for y in range(ship_start_y,
+                                       ship_end_y + 1, Cube.length):
                             if (x, y) in not_available_cubes:
                                 check.append('no')
                     if len(check) == 0:
@@ -74,13 +86,13 @@ class GameAgainstComp(GameManager):
                         not_done = False
                         try_again = True
 
-                ship.set_position(Cube(min(ship_start.x, ship_end.x), min(ship_start.y, ship_end.y)),
-                                  Cube(max(ship_start.x, ship_end.x), max(ship_start.y, ship_end.y)))
+                ship.set_position(player, Cube(ship_start_x, ship_start_y),
+                                  Cube(ship_end_x, ship_end_y))
                 # calls the set_position method to save the ship's coordinates accordingly
-                for x in range(min(ship_start.x, ship_end.x) - Cube.length,
-                               max(ship_start.x, ship_end.x) + Cube.length + 1, Cube.length):
-                    for y in range(min(ship_start.y, ship_end.y) - Cube.length,
-                                   max(ship_start.y, ship_end.y) + Cube.length + 1, Cube.length):
+                for x in range(ship_start_x - Cube.length,
+                               ship_end_x + Cube.length + 1, Cube.length):
+                    for y in range(ship_start_y - Cube.length,
+                                   ship_end_y + Cube.length + 1, Cube.length):
                         if (x, y) in player.board.cubes_availability:
                             player.board.cubes_availability[(x, y)] = 0
                             # updates the dictionary that the chosen cubes and the cubes next to them are not available.
@@ -89,11 +101,11 @@ class GameAgainstComp(GameManager):
     def rand_shoot(player):
         """randomly shoots a cube on the player's board"""
         target = 0
-        for ship in player.ships:
+        for ship in player.board.ships:
             temp = []
             if not ship.is_ship_sunk(player):
-                for x in player.ship_pos:
-                    if player.ship_pos[x] == ship.id:
+                for x in player.board.ship_pos:
+                    if player.board.ship_pos[x] == ship.id:
                         temp.append(x)
             for cube in temp:
                 if cube in player.board.ship_shot:
@@ -104,7 +116,7 @@ class GameAgainstComp(GameManager):
                             break
                     break
         if target == 0:
-            target = random.choice(player.cubes_not_shot)  # randomly chooses a cube from the cubes that were not shot
+            target = random.choice(player.board.cubes_not_shot)  # randomly chooses a cube from the cubes that were not shot
             GameManager.shoot(player, target)  # shoots it with the shoot method
 
         return target

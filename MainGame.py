@@ -85,7 +85,6 @@ def register():
 
 
 def menu_screen():
-    global window
     window = ThemedTk(theme="arc")  # creating the menu window with the theme "arc"
     window.title("© Battleship by Shani Daniel ©")
     window.configure(background='light blue')
@@ -111,20 +110,27 @@ def menu_screen():
     def stats():
         stats_screen()
 
+    def del_user():
+        delete_user(window)
+
+    def change_user_name():
+        change_username(window)
+
     ttk.Button(window, text="Play Against Computer", style='Option.TButton', command=play_against_comp).pack(pady=10)
-    ttk.Button(window, text="Play Against Another Player", style='Option.TButton', command=play_against_player).pack(pady=10)
+    ttk.Button(window, text="Play Against Another Player", style='Option.TButton', command=play_against_player)\
+        .pack(pady=10)
     ttk.Button(window, text="Statistics", style='Option.TButton', command=stats).pack(pady=10)
     tk.Label(window, text="", background='light blue').pack()
     tk.Button(window, text="Change Username", font=("Cooper Black", 12),
-              background="white", foreground='black', command=change_username).pack(pady=5)
+              background="white", foreground='black', command=change_user_name).pack(pady=5)
     tk.Button(window, text="Delete User", font=("Cooper Black", 12),
-              background="white", foreground='black', command=delete_user).pack(pady=5)
+              background="white", foreground='black', command=del_user).pack(pady=5)
     # creating the different buttons on the menu screen
 
     window.mainloop()
 
 
-def change_username():
+def change_username(window):
     """opens up a window where the user can change his username"""
     username_screen = tk.Toplevel(window)
     username_screen.configure(background='light blue')
@@ -157,7 +163,7 @@ def change_username():
     #  creating the "change" button
 
 
-def delete_user():
+def delete_user(window):
     """allows the user to delete his user from the system (the database)"""
     del_window = messagebox.askyesno(title="Warning!", message="Are you sure you want\nto delete your user?"
                                      "\nThis action can't be undone.")  # asks the user if he is sure
