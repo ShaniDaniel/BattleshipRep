@@ -46,7 +46,7 @@ def register_user(reg_screen, first_name, last_name, username, email, password, 
         #  creating the user in the database and writing the registration completed successfully
 
 
-def register():
+def register(screen):
     reg_screen = tk.Toplevel(screen)  # adds the registration screen on top of the main signing-in screen
     reg_screen.configure(background='light blue')
     reg_screen.title("© Battleship by Shani Daniel ©")
@@ -154,8 +154,8 @@ def change_username(window):
                                        foreground='black', background='light blue')
             username_error.pack()
         else:  # changes the username in the database and informs the user
-            ttk.Label(username_screen, text="Username changed. To be updated\n   you shall re-enter the program"
-                      , font=("Calibri Bold", 12),
+            ttk.Label(username_screen, text="Username changed. To be updated\n   you shall re-enter the program",
+                      font=("Calibri Bold", 12),
                       foreground='black', background='light blue').pack()
 
     ttk.Style().configure('username.TButton', font=('Calibri Bold', 12), foreground='black')
@@ -174,7 +174,7 @@ def delete_user(window):
         window.destroy()
 
 
-def login_button_click():
+def login_button_click(screen, username_login, password_login):
     """after the login button is pressed, verifies the user exists in the database and enters the game menu"""
     try:
         global incorrect
@@ -193,14 +193,14 @@ def login_button_click():
 
 def login_screen():
     """creates the first screen where the user logs in to the game"""
-    global screen, username_login, password_login
     screen = ThemedTk(theme="arc")  # creating a window themed "arc"
     screen.geometry('880x540')
     screen.title("© Battleship by Shani Daniel ©")
     screen.configure(background='light blue')
     style_log = ttk.Style()
 
-    ttk.Label(text='Welcome to Battleship', font=("Broadway", 50), foreground='black', background='light blue').pack(pady=40)
+    ttk.Label(text='Welcome to Battleship', font=("Broadway", 50), foreground='black', background='light blue')\
+        .pack(pady=40)
     ttk.Label(text='Login:', font=("Cooper black", 32), foreground='black', background='light blue').pack(pady=20)
     # writes the main game title and the "login" label
 
@@ -214,10 +214,16 @@ def login_screen():
     tk.Entry(screen, textvariable=password_login, show='*').pack()
     # creates the username and password fields
 
+    def login_click():
+        login_button_click(screen, username_login, password_login)
+
+    def register_click():
+        register(screen)
+
     style_log.configure('log.TButton', font=('Cooper Black', 16), foreground='black')
     style_log.configure('reg.TButton', font=('Cooper Black', 13), foreground='black')
-    ttk.Button(screen, text="Sign in", style='log.TButton', command=login_button_click).pack(pady=15)
-    ttk.Button(screen, text="Register", style='reg.TButton', command=register).pack()
+    ttk.Button(screen, text="Sign in", style='log.TButton', command=login_click).pack(pady=15)
+    ttk.Button(screen, text="Register", style='reg.TButton', command=register_click).pack()
     # styles and creates the "sign in" and "register" buttons
 
     screen.mainloop()

@@ -1,11 +1,11 @@
 from tkinter import messagebox
 
 import pygame
+import Constants
 
-from Classes.Cube import Cube
+from Classes.Square import Square
 from Classes.GameAgainstComp import GameAgainstComp
 from Classes.Player import Player
-from Classes.Board import Board
 from Classes.User import User
 from UI.BoardUI import BoardUI
 from UI.TextUI import TextUI
@@ -31,10 +31,11 @@ class GameUI:
         TextUI.write_title(screen,
                            "and you must place your ships horizontally or vertically. Your board is the left board.", 2)
         TextUI.write_title(screen,
-                           "To place a ship, press the cube you want it to start and then the cube you want it to end.",
+                           "To place a ship, press the square you want it to start and then the square you want it to "
+                           "end.",
                            3)
         TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                   " Now, place the ship that is *5* cubes long", 4)
+                                   " Now, place the ship that is *5* squares long", 4)
 
     @staticmethod
     def placing_ships(screen, event, player, start_game, game_over):
@@ -46,17 +47,17 @@ class GameUI:
             BoardUI.place_ships(screen, player, pos)
             last_ship = None
             for ship in player.board.ships:
-                if ship.cube_end is not None and start_game is False and game_over is False:
+                if ship.square_end is not None and start_game is False and game_over is False:
                     BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
                 try:  # checks if the ship before the current ship was fully placed
-                    if last_ship.cube_start is not None and last_ship.cube_end is not None:
+                    if last_ship.square_start is not None and last_ship.square_end is not None:
                         TextUI.clear_title(screen, 4)
                         TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, place the ship that is *%s* cubes long" % ship.size, 4)
+                                                   " Now, place the ship that is *%s* squares long" % ship.size, 4)
                 except AttributeError:  # if last_ship wasn't initialized yet
                     TextUI.clear_title(screen, 4)
                     TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                               " Now, place the ship that is *5* cubes long", 4)
+                                               " Now, place the ship that is *5* squares long", 4)
 
                 last_ship = ship  # remembers the ship before the current ship
 
@@ -64,12 +65,12 @@ class GameUI:
             # deletes a placed ship if the player right-clicks it
             pos = pygame.mouse.get_pos()  # gets current mouse position
             for ship in player.board.ships:
-                if BoardUI.get_cubes_position(player, pos) in player.board.ship_pos.keys() and start_game is False:
-                    if player.board.ship_pos[BoardUI.get_cubes_position(player, pos)] == ship.id:
+                if BoardUI.get_squares_position(player, pos) in player.board.ship_pos.keys() and start_game is False:
+                    if player.board.ship_pos[BoardUI.get_squares_position(player, pos)] == ship.id:
                         TextUI.clear_title(screen, 4)
                         BoardUI.del_ship(screen, ship, player)
                         TextUI.write_title(screen, "To delete a placed ship, right-click the selected ship."
-                                                   " Now, replace the ship that is *%s* cubes long" % ship.size,
+                                                   " Now, replace the ship that is *%s* squares long" % ship.size,
                                            4)
                         break
 
@@ -85,7 +86,7 @@ class GameUI:
 
         ship_count = 0
         for ship in player.board.ships:
-            if ship.cube_start is not None and ship.cube_end is not None:
+            if ship.square_start is not None and ship.square_end is not None:
                 ship_count += 1
         if ship_count == 5:  # checks if all the ships were placed
             for line in range(5):
@@ -96,14 +97,12 @@ class GameUI:
     def play_against_comp():
         """running the game against the computer"""
 
-        Cube.length = 40
+        Square.length = 40
         player = Player(GameUI.logged_in_user.username)
-        player.board = Board(Cube(20, 100), Cube(380, 460))
-        player.board.cubes_not_shot_list()
+        player.set_board(1)
 
         opponent = Player("Computer")
-        opponent.board = Board(Cube(460, 100), Cube(820, 460))
-        opponent.board.cubes_not_shot_list()
+        opponent.set_board(2)
 
         pygame.init()
         done = False
@@ -111,7 +110,7 @@ class GameUI:
         pygame.display.set_caption("© Battleship by Shani Daniel ©")  # sets window title
 
         screen = pygame.display.set_mode(
-            (opponent.board.end.x + player.board.start.x + Cube.length, opponent.board.end.y + 80))
+            (opponent.board.end.x + player.board.start.x + Square.length, opponent.board.end.y + 80))
         screen.fill(BoardUI.color_index["light blue"])
 
         TextUI.write_title(screen, "Hello %s! Welcome to Battleship! You are going to play against the computer."
@@ -122,8 +121,6 @@ class GameUI:
         BoardUI.draw_board(screen, opponent.board)
 
         GameAgainstComp.rand_place_ships(opponent)  # the computer randomly places it's ships
-
-        player.board.available_cubes_dict(player)
 
         player_turn = True
         start_game = False
@@ -143,7 +140,7 @@ class GameUI:
 
                 ship_count = 0
                 for ship in player.board.ships:
-                    if ship.cube_start is not None and ship.cube_end is not None:
+                    if ship.square_start is not None and ship.square_end is not None:
                         ship_count += 1
                 if ship_count == 5:  # checks if all the ships were placed
                     start_game = True
@@ -155,11 +152,11 @@ class GameUI:
                     TextUI.write_title(screen, "You Lost!", 1, 48)
                     start_game = False
                     game_over = True
-                    for ship in opponent.ships:
+                    for ship in opponent.board.ships:
                         if not ship.is_ship_sunk(opponent):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
-                    for cube in opponent.board.ship_shot:
-                        BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
+                    for square in opponent.board.ship_shot:
+                        BoardUI.color_square(screen, square, BoardUI.color_index["red"])
                     break
 
                 if opponent.check_if_lost() is True:
@@ -174,8 +171,8 @@ class GameUI:
                     for ship in player.board.ships:
                         if not ship.is_ship_sunk(player):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
-                    for cube in player.board.ship_shot:
-                        BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
+                    for square in player.board.ship_shot:
+                        BoardUI.color_square(screen, square, BoardUI.color_index["red"])
                     break
 
                 if start_game is True and game_over is False:
@@ -191,7 +188,7 @@ class GameUI:
                         TextUI.write_title(screen, "Your Turn", 2, 36)
                         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                             pos = pygame.mouse.get_pos()
-                            if BoardUI.get_cubes_position(opponent, pos) is not None:
+                            if BoardUI.get_squares_position(opponent, pos) is not None:
                                 if BoardUI.shoot(screen, opponent, pos) == "success":
                                     player_turn = False  # pass the turn to the computer
                                     TextUI.clear_title(screen, 1, 66)
@@ -202,14 +199,14 @@ class GameUI:
                         pygame.time.delay(1000)  # delays the computer's response to make the game more interactive
 
                     if player_turn is False and opponent.check_if_lost() is False:
-                        rand_pos_cube = GameAgainstComp.rand_shoot(player)
-                        BoardUI.shoot(screen, player, (rand_pos_cube.x, rand_pos_cube.y))
+                        rand_pos_square = GameAgainstComp.rand_shoot(player)
+                        BoardUI.shoot(screen, player, (rand_pos_square.x, rand_pos_square.y))
                         player_turn = True
                 for coord in player.board.empty_shot:
-                    BoardUI.draw_x(screen, BoardUI.get_cubes_position(player, (coord.x, coord.y)))
+                    BoardUI.draw_x(screen, BoardUI.get_squares_position(player, (coord.x, coord.y)))
                 for coord in player.board.ship_shot:
-                    BoardUI.color_cube(screen, BoardUI.get_cubes_position(player, (coord.x, coord.y)),
-                                       BoardUI.color_index["red"])
+                    BoardUI.color_square(screen, BoardUI.get_squares_position(player, (coord.x, coord.y)),
+                                         BoardUI.color_index["red"])
 
             pygame.display.flip()
             clock.tick(60)
@@ -219,14 +216,12 @@ class GameUI:
     def play_against_player():
         """running the game against another player"""
 
-        Cube.length = 40
+        Square.length = 40
         player1 = Player(GameUI.logged_in_user.username)
-        player1.board = Board(Cube(20, 100), Cube(380, 460))
-        player1.board.cubes_not_shot_list()
+        player1.set_board(1)
 
         player2 = Player("Guest")
-        player2.board = Board(Cube(460, 100), Cube(820, 460))
-        player2.board.cubes_not_shot_list()
+        player2.set_board(2)
 
         pygame.init()
         done = False
@@ -234,14 +229,11 @@ class GameUI:
         pygame.display.set_caption("© Battleship by Shani Daniel ©")  # sets window title
 
         screen = pygame.display.set_mode(
-            (player2.board.end.x + player1.board.start.x + Cube.length, player2.board.end.y + 80))
+            (player2.board.end.x + player1.board.start.x + Square.length, player2.board.end.y + 80))
         screen.fill(BoardUI.color_index["light blue"])
 
         BoardUI.draw_board(screen, player1.board)
         BoardUI.draw_board(screen, player2.board)
-
-        player1.board.available_cubes_dict(player1)
-        player2.board.available_cubes_dict(player2)
 
         player1_turn = True
         start_game = False
@@ -266,8 +258,8 @@ class GameUI:
                         TextUI.clear_title(screen, 4)
                         TextUI.write_title(screen,
                                            "To delete a placed ship, right-click the selected ship. "
-                                           "Now, place the ship that is *5* cubes long", 4)
-                        for ship in player1.ships:
+                                           "Now, place the ship that is *5* squares long", 4)
+                        for ship in player1.board.ships:
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
                             # after he placed all his ships, they disappear from the screen
                     break
@@ -287,8 +279,8 @@ class GameUI:
                         TextUI.write_title(screen,
                                            "%s's Board                                                                 "
                                            "               Guest's Board"
-                                           % player1.username, BoardUI.bottom_line)
-                        for ship in player2.ships:
+                                           % player1.username, Constants.BOTTOM_LINE)
+                        for ship in player2.board.ships:
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["white"])
                         break
 
@@ -298,11 +290,11 @@ class GameUI:
                     TextUI.write_title(screen, "%s Won!" % player2.username, 1, 48)
                     start_game = False
                     game_over = True
-                    for ship in player2.ships:
+                    for ship in player2.board.ships:
                         if not ship.is_ship_sunk(player2):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
-                    for cube in player2.board.ship_shot:
-                        BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
+                    for square in player2.board.ship_shot:
+                        BoardUI.color_square(screen, square, BoardUI.color_index["red"])
                     break
 
                 if player2.check_if_lost() is True:
@@ -314,11 +306,11 @@ class GameUI:
                         GameUI.logged_in_user.num_of_wins += 1
                     start_game = False
                     game_over = True
-                    for ship in player1.ships:
+                    for ship in player1.board.ships:
                         if not ship.is_ship_sunk(player1):
                             BoardUI.color_ship(screen, ship, BoardUI.color_index["blue"])
-                    for cube in player1.board.ship_shot:
-                        BoardUI.color_cube(screen, cube, BoardUI.color_index["red"])
+                    for square in player1.board.ship_shot:
+                        BoardUI.color_square(screen, square, BoardUI.color_index["red"])
                     break
 
                 if start_game is True and game_over is False:
@@ -336,7 +328,7 @@ class GameUI:
                         TextUI.write_title(screen, "%s's Turn" % player1.username, 2, 36)
                         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                             pos = pygame.mouse.get_pos()
-                            if BoardUI.get_cubes_position(player2, pos) is not None:
+                            if BoardUI.get_squares_position(player2, pos) is not None:
                                 if BoardUI.shoot(screen, player2, pos) == "success":
                                     player1_turn = False
                                     TextUI.clear_title(screen, 1, 66)
@@ -346,7 +338,7 @@ class GameUI:
                     if player1_turn is False and player2.check_if_lost() is False:
                         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                             pos = pygame.mouse.get_pos()
-                            if BoardUI.get_cubes_position(player1, pos) is not None:
+                            if BoardUI.get_squares_position(player1, pos) is not None:
                                 if BoardUI.shoot(screen, player1, pos) == "success":
                                     player1_turn = True
                                     TextUI.clear_title(screen, 1, 66)

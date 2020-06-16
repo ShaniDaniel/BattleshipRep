@@ -1,4 +1,4 @@
-class Cube:
+class Square:
     length = None
 
     def __init__(self, x_coordinate, y_coordinate):
