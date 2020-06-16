@@ -21,4 +21,3 @@ class Player:
             self.board = Board(Square(460, 100), Square(820, 460))
         self.board.squares_not_shot_list()
         self.board.available_squares_dict(self)
-

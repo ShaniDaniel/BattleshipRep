@@ -40,7 +40,6 @@ class GameUI:
     @staticmethod
     def placing_ships(screen, event, player, start_game, game_over):
         """let's the user place it's ships in order and stores the ship's places"""
-        from UI.BoardUI import BoardUI
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # check for mouse button click
             """event.button returns 1-left click 2-middle click 3-right click"""
             pos = pygame.mouse.get_pos()  # gets current mouse position

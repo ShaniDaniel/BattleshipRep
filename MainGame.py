@@ -175,6 +175,7 @@ def delete_user(window):
 
 
 def login_button_click(screen, username_login, password_login):
+
     """after the login button is pressed, verifies the user exists in the database and enters the game menu"""
     try:
         global incorrect
