@@ -48,6 +48,7 @@ class Test(unittest.TestCase):
         number_of_squares_y_axis = (board_y_end - board_y_start + Square.length) / Square.length
 
         self.assertEqual(len(Test.test_player.board.get_board()), number_of_squares_x_axis * number_of_squares_y_axis)
+        # the number of squares on the board should match the number of squares calculated by the board list
 
     def test_rand_place_ships(self):
         """testing the rand_place_ships method in GameAgainstComp"""
@@ -61,9 +62,10 @@ class Test(unittest.TestCase):
 
     def test_square_is_shot(self):
         """testing that the squares_not_shot list is updated when a square is shot"""
-        num_squares_not_shot = len(Test.test_player.board.squares_not_shot)
-        GameManager.shoot(Test.test_player, Test.test_player.board.squares_list[0])
-        self.assertGreater(num_squares_not_shot, len(Test.test_player.board.squares_not_shot))
+        num_of_squares_not_shot = len(Test.test_player.board.squares_not_shot)
+        GameManager.shoot(Test.test_player, Test.test_player.board.squares_list[0])  # shooting a square
+        self.assertGreater(num_of_squares_not_shot, len(Test.test_player.board.squares_not_shot))
+        # checking the list was updated correctly
 
     def test_statistics_won(self):
         """testing that the statistics are updated accordingly if the user won"""
@@ -75,10 +77,11 @@ class Test(unittest.TestCase):
         User.add_score(0, won=True)
 
         cursor = User.db_connect()
-        cursor.execute("SELECT * FROM [Users] WHERE [ID]=0")  # selects the first row in the db (test row)
+        cursor.execute("SELECT * FROM [Users] WHERE [ID]=0")  # selects the updated first row in the db (test row)
         updated_rows = cursor.fetchall()
 
         self.assertEqual(updated_rows[0].NumberOfWinnings, rows[0].NumberOfWinnings+1)
+        # the number of winnings should grow by 1
 
     def test_statistics_lost(self):
         """testing that the statistics are updated accordingly if the user lost"""
@@ -90,11 +93,12 @@ class Test(unittest.TestCase):
         User.add_score(0, won=False)
 
         cursor = User.db_connect()
-        cursor.execute("SELECT * FROM [Users] WHERE [ID]=0")  # selects the first row in the db (test row)
+        cursor.execute("SELECT * FROM [Users] WHERE [ID]=0")   # selects the updated first row in the db (test row)
         updated_rows = cursor.fetchall()
 
-        self.assertEqual(updated_rows[0].NumberOfGames, rows[0].NumberOfGames+1)
+        self.assertEqual(updated_rows[0].NumberOfGames, rows[0].NumberOfGames+1)  # the number of games should grow by 1
         self.assertEqual(updated_rows[0].NumberOfWinnings, rows[0].NumberOfWinnings)
+        # the number of winnings should not change
 
     def test_player_place_ships(self):
         """testing the place_ship method works correctly and returns errors if ship placing is invalid"""

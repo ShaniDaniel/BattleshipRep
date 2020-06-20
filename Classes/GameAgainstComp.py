@@ -114,12 +114,12 @@ class GameAgainstComp(GameManager):
                     for pos in temp:
                         if pos not in player.board.ship_shot:
                             target = pos
-                            GameManager.shoot(player, target)  # shoots it with the shoot method
+                            GameAgainstComp.shoot(player, target)  # shoots it with the shoot method
                             break
                     break
         if target == 0:
             target = random.choice(player.board.squares_not_shot)
             # randomly chooses a square from the squares that were not shot
-            GameManager.shoot(player, target)  # shoots it with the shoot method
+            GameAgainstComp.shoot(player, target)  # shoots it with the shoot method
 
         return target
