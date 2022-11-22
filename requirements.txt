@@ -3,7 +3,7 @@ altgraph==0.17
 Click==7.1.1
 future==0.18.2
 pygame==1.9.6
-Pillow==7.1.1
+Pillow==9.3.0
 pyodbc==4.0.30
 ttkthemes==3.0.0
 
