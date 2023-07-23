@@ -1,7 +1,7 @@
 matplotlib
 altgraph==0.17
 Click==7.1.1
-future==0.18.2
+future==0.18.3
 pygame==1.9.6
 Pillow==7.1.1
 pyodbc==4.0.30
